@@ -9,10 +9,8 @@ import VideoPlayer from '@/components/VideoPlayer';
 import Marquee from '@/components/Marquee';
 import { ParsedM3UChannel } from '@/lib/types';
 
-// CONFIGURATION: Internal Next.js API proxy for Vercel hosting.
-const PROXY_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? "/api/proxy?url="
-  : "";
+// CONFIGURATION: Set to empty for Native App (Direct Stream)
+const PROXY_URL = "";
 
 export default function Home() {
   const [channels, setChannels] = useState<ParsedM3UChannel[]>([]);
