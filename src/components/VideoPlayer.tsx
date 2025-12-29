@@ -32,77 +32,79 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
         setIsLoading(true);
         setError(null);
 
+        // DETECT if we are in the APK (Capacitor/WebView)
+        const isAndroidAPK = typeof window !== 'undefined' &&
+            (window.location.protocol === 'file:' ||
+                navigator.userAgent.toLowerCase().includes('capacitor'));
+
         if (hlsRef.current) {
             hlsRef.current.destroy();
         }
 
+        const handleNativeSuccess = () => {
+            console.log('Native playback initialized');
+            setIsLoading(false);
+            if (autoPlay) video.play().catch(() => { });
+        };
+
+        const handleNativeError = (e: any) => {
+            console.error('Native engine failure:', e);
+            // If native fails in APK, we have a real problem
+            if (isAndroidAPK) {
+                setIsLoading(false);
+                setError('Native Engine Blocked. Please check App Permissions.');
+            }
+        };
+
+        // STRATEGY: In APK, use Native Engine IMMEDIATELY. It is more stable than Hls.js in WebView.
+        if (isAndroidAPK) {
+            console.log('APK Detected: Using Native Media Stack');
+            video.src = src;
+            video.addEventListener('loadedmetadata', handleNativeSuccess);
+            video.addEventListener('error', handleNativeError);
+            return () => {
+                video.removeEventListener('loadedmetadata', handleNativeSuccess);
+                video.removeEventListener('error', handleNativeError);
+            };
+        }
+
+        // STANDARD WEB: Use Hls.js
         if (Hls.isSupported()) {
             const hls = new Hls({
                 enableWorker: true,
                 lowLatencyMode: true,
-                backBufferLength: 90,
-                maxBufferLength: 40,
+                backBufferLength: 60,
+                maxBufferLength: 30,
                 capLevelToPlayerSize: true,
-                xhrSetup: (xhr, url) => {
-                    xhr.withCredentials = false;
-                }
+                xhrSetup: (xhr) => { xhr.withCredentials = false; }
             });
 
             hlsRef.current = hls;
             hls.loadSource(src);
             hls.attachMedia(video);
 
-            // TRACKER for hanging - Android APK specific fix
-            const nativeFallbackTimer = setTimeout(() => {
-                if (isLoading) {
-                    console.log('HLS.js hanging, triggering native fallback...');
-                    hls.destroy();
-                    video.src = src;
-                    video.load();
-                }
-            }, 6000);
-
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                clearTimeout(nativeFallbackTimer);
                 setIsLoading(false);
-                if (autoPlay) video.play().catch(e => console.error(e));
+                if (autoPlay) video.play().catch(() => { });
             });
 
             hls.on(Hls.Events.ERROR, (_, data) => {
                 if (data.fatal) {
-                    clearTimeout(nativeFallbackTimer);
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            hls.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            hls.recoverMediaError();
-                            break;
-                        default:
-                            setIsLoading(false);
-                            setError(`Stream issue: ${data.details}`);
-                            hls.destroy();
-                            break;
-                    }
+                    setIsLoading(false);
+                    setError(`Stream issue: ${data.details}`);
+                    hls.destroy();
                 }
             });
 
             return () => {
-                clearTimeout(nativeFallbackTimer);
                 if (hlsRef.current) hlsRef.current.destroy();
             };
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Safari/iOS Fallback
             video.src = src;
-            const handleLoaded = () => setIsLoading(false);
-            const handleError = () => {
-                setIsLoading(false);
-                setError('Native player failed to load stream.');
-            };
-            video.addEventListener('loadedmetadata', handleLoaded);
-            video.addEventListener('error', handleError);
+            video.addEventListener('loadedmetadata', handleNativeSuccess);
             return () => {
-                video.removeEventListener('loadedmetadata', handleLoaded);
-                video.removeEventListener('error', handleError);
+                video.removeEventListener('loadedmetadata', handleNativeSuccess);
             };
         }
 
