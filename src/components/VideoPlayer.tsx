@@ -32,8 +32,8 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
         setIsLoading(true);
         setError(null);
 
-        // DETECT if we are in the APK (Capacitor/WebView)
-        const isAndroidAPK = typeof window !== 'undefined' &&
+        // NATIVE IPTV APK DETECTION
+        const isAPK = typeof window !== 'undefined' &&
             (window.location.protocol === 'file:' ||
                 navigator.userAgent.toLowerCase().includes('capacitor'));
 
@@ -41,70 +41,87 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
             hlsRef.current.destroy();
         }
 
-        const handleNativeSuccess = () => {
-            console.log('Native playback initialized');
+        const handleSuccess = () => {
+            console.log('Stream Connected');
             setIsLoading(false);
             if (autoPlay) video.play().catch(() => { });
         };
 
-        const handleNativeError = (e: any) => {
-            console.error('Native engine failure:', e);
-            // If native fails in APK, we have a real problem
-            if (isAndroidAPK) {
-                setIsLoading(false);
-                setError('Native Engine Blocked. Please check App Permissions.');
-            }
+        const handleFail = (msg: string) => {
+            console.warn('Playback attempt failed:', msg);
+            // If everything fails, show the error
+            setIsLoading(false);
+            setError(msg);
         };
 
-        // STRATEGY: In APK, use Native Engine IMMEDIATELY. It is more stable than Hls.js in WebView.
-        if (isAndroidAPK) {
-            console.log('APK Detected: Using Native Media Stack');
+        // STRATEGY 1: NATIVE STACK FOR APK (Highest Reliability)
+        if (isAPK) {
+            console.info('IPTV MODE: Native Stack');
             video.src = src;
-            video.addEventListener('loadedmetadata', handleNativeSuccess);
-            video.addEventListener('error', handleNativeError);
+            video.addEventListener('loadedmetadata', handleSuccess);
+            video.addEventListener('error', () => handleFail('Native Hardware Connection Failed.'));
             return () => {
-                video.removeEventListener('loadedmetadata', handleNativeSuccess);
-                video.removeEventListener('error', handleNativeError);
+                video.removeEventListener('loadedmetadata', handleSuccess);
             };
         }
 
-        // STANDARD WEB: Use Hls.js
+        // STRATEGY 2: HLS.JS (Professional Configuration)
         if (Hls.isSupported()) {
             const hls = new Hls({
-                enableWorker: true,
+                enableWorker: false, // WORKERS CAUSE HANGS IN APK/WEBVIEW
                 lowLatencyMode: true,
-                backBufferLength: 60,
-                maxBufferLength: 30,
+                backBufferLength: 30,
+                maxBufferLength: 10, // Small buffer = faster start
                 capLevelToPlayerSize: true,
-                xhrSetup: (xhr) => { xhr.withCredentials = false; }
+                xhrSetup: (xhr) => {
+                    xhr.withCredentials = false;
+                }
             });
 
             hlsRef.current = hls;
             hls.loadSource(src);
             hls.attachMedia(video);
 
+            // 5 SECOND ESCAPE: If HLS.js is too slow, force Native
+            const escapeTimer = setTimeout(() => {
+                if (isLoading) {
+                    console.warn('HLS.js slow, forcing Native Fallback');
+                    hls.destroy();
+                    video.src = src;
+                    video.load();
+                }
+            }, 5000);
+
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                setIsLoading(false);
-                if (autoPlay) video.play().catch(() => { });
+                clearTimeout(escapeTimer);
+                handleSuccess();
             });
 
             hls.on(Hls.Events.ERROR, (_, data) => {
                 if (data.fatal) {
-                    setIsLoading(false);
-                    setError(`Stream issue: ${data.details}`);
-                    hls.destroy();
+                    clearTimeout(escapeTimer);
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        hls.startLoad();
+                    } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                        hls.recoverMediaError();
+                    } else {
+                        handleFail(`Stream Blocked: ${data.details}`);
+                    }
                 }
             });
 
             return () => {
+                clearTimeout(escapeTimer);
                 if (hlsRef.current) hlsRef.current.destroy();
             };
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Safari/iOS Fallback
+        }
+
+        // STRATEGY 3: SAFARI/APPLE NATIVE
+        if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = src;
-            video.addEventListener('loadedmetadata', handleNativeSuccess);
+            video.addEventListener('loadedmetadata', handleSuccess);
             return () => {
-                video.removeEventListener('loadedmetadata', handleNativeSuccess);
+                video.removeEventListener('loadedmetadata', handleSuccess);
             };
         }
 
