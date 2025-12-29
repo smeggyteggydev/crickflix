@@ -145,7 +145,7 @@ export default function Home() {
             className="fixed inset-0 z-[2000] bg-black"
           >
             <VideoPlayer
-              src={PROXY_URL ? `${PROXY_URL}${selectedChannel.url}` : selectedChannel.url}
+              src={PROXY_URL ? `${PROXY_URL}${btoa(selectedChannel.url)}` : selectedChannel.url}
               title={selectedChannel.name}
               onClose={() => setSelectedChannel(null)}
             />
