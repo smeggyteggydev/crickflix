@@ -40,10 +40,8 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
             const hls = new Hls({
                 enableWorker: true,
                 lowLatencyMode: true,
-                backBufferLength: 90, // Keep more in buffer
+                backBufferLength: 90,
                 maxBufferLength: 40,
-                maxMaxBufferLength: 60,
-                maxBufferSize: 60 * 1000 * 1000, // 60MB
                 capLevelToPlayerSize: true,
                 xhrSetup: (xhr, url) => {
                     xhr.withCredentials = false;
@@ -54,35 +52,58 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
             hls.loadSource(src);
             hls.attachMedia(video);
 
+            // TRACKER for hanging - Android APK specific fix
+            const nativeFallbackTimer = setTimeout(() => {
+                if (isLoading) {
+                    console.log('HLS.js hanging, triggering native fallback...');
+                    hls.destroy();
+                    video.src = src;
+                    video.load();
+                }
+            }, 6000);
+
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                clearTimeout(nativeFallbackTimer);
                 setIsLoading(false);
-                if (autoPlay) video.play().catch(() => { });
+                if (autoPlay) video.play().catch(e => console.error(e));
             });
 
             hls.on(Hls.Events.ERROR, (_, data) => {
                 if (data.fatal) {
+                    clearTimeout(nativeFallbackTimer);
                     switch (data.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.log('Network error, trying to recover...');
                             hls.startLoad();
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.log('Media error, trying to recover...');
                             hls.recoverMediaError();
                             break;
                         default:
-                            setError('Stream unavailable. The channel might be offline.');
+                            setIsLoading(false);
+                            setError(`Stream issue: ${data.details}`);
                             hls.destroy();
                             break;
                     }
                 }
             });
+
+            return () => {
+                clearTimeout(nativeFallbackTimer);
+                if (hlsRef.current) hlsRef.current.destroy();
+            };
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = src;
-            video.addEventListener('loadedmetadata', () => {
+            const handleLoaded = () => setIsLoading(false);
+            const handleError = () => {
                 setIsLoading(false);
-                if (autoPlay) video.play().catch(() => { });
-            });
+                setError('Native player failed to load stream.');
+            };
+            video.addEventListener('loadedmetadata', handleLoaded);
+            video.addEventListener('error', handleError);
+            return () => {
+                video.removeEventListener('loadedmetadata', handleLoaded);
+                video.removeEventListener('error', handleError);
+            };
         }
 
         return () => {
