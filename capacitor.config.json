@@ -1,0 +1,6 @@
+{
+    "appId": "com.smeggyteggy.crickflix",
+    "appName": "CricFlix",
+    "webDir": "out",
+    "bundledWebRuntime": false
+}
