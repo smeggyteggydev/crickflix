@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#050507">
+    <meta name="description" content="CrickFlix - Premium Live Sports & Entertainment Streaming">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CrickFlix | Live Sports & Entertainment</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">📺</div>
+                    <span class="logo-text">CrickFlix</span>
+                </div>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search channels...">
+                </div>
+            </div>
+            
+            <!-- Category Tabs -->
+            <div class="category-tabs" id="categoryTabs">
+                <button class="category-tab active" data-category="all">All</button>
+                <button class="category-tab" data-category="sports">Sports</button>
+                <button class="category-tab" data-category="cricket">Cricket</button>
+                <button class="category-tab" data-category="entertainment">Entertainment</button>
+                <button class="category-tab" data-category="news">News</button>
+                <button class="category-tab" data-category="kids">Kids</button>
+                <button class="category-tab" data-category="movies">Movies</button>
+                <button class="category-tab" data-category="religious">Religious</button>
+            </div>
+            
+            <!-- Channel List -->
+            <div class="channel-list" id="channelList">
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p class="empty-state-text">Loading channels...</p>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Video Container -->
+            <div class="video-container">
+                <div class="video-wrapper" id="videoWrapper">
+                    <!-- Placeholder -->
+                    <div class="video-placeholder" id="videoPlaceholder">
+                        <div class="video-placeholder-icon">📺</div>
+                        <p class="video-placeholder-text">Select a channel to start watching</p>
+                    </div>
+                    
+                    <!-- Video Player -->
+                    <video class="video-player" id="videoPlayer" controls playsinline></video>
+                    
+                    <!-- Loading Overlay -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="spinner"></div>
+                    </div>
+                    
+                    <!-- Error Overlay -->
+                    <div class="error-overlay" id="errorOverlay">
+                        <div class="error-icon">⚠️</div>
+                        <p class="error-text" id="errorText">Stream unavailable. Please try again.</p>
+                        <button class="retry-btn" id="retryBtn">Retry</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Player Bar -->
+            <div class="player-bar">
+                <div class="now-playing">
+                    <div class="now-playing-indicator" id="nowPlayingIndicator"></div>
+                    <span class="now-playing-text" id="nowPlayingText">Select a channel to begin</span>
+                </div>
+                <div class="player-actions">
+                    <button class="player-btn" id="pipBtn" title="Picture in Picture">🖼️</button>
+                    <button class="player-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+                    <span class="quality-badge">HD STREAMING</span>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Mobile Toggle Button -->
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --color-brand-emerald: #00C853;
+  --color-brand-gold: #FFD600;
+  --color-cinematic-black: #000000;
+  --color-matte-black: #0A0A0A;
+  --color-deep-gray: #050505;
+}
+
+@layer base {
+  body {
+    @apply bg-cinematic-black text-white antialiased selection:bg-brand-emerald/30 overflow-x-hidden;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+
+  /* PRISMATIC GLASS - CHROMATIC ABERRATION */
+  .prismatic-border {
+    position: relative;
+    border: 1px solid transparent;
+    background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+      linear-gradient(135deg,
+        rgba(255, 0, 0, 0.4) 0%,
+        rgba(0, 255, 0, 0.4) 50%,
+        rgba(0, 0, 255, 0.4) 100%) border-box;
+    box-shadow: 0 0 15px rgba(0, 200, 83, 0.1);
+  }
+
+  .glassy-core {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+
+  /* LIQUID METAL EFFECT */
+  .liquid-metal {
+    position: relative;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 60%),
+      linear-gradient(145deg, #0a0a0a, #000000);
+    overflow: hidden;
+  }
+
+  .liquid-metal::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(135deg, transparent 40%, rgba(0, 200, 83, 0.1) 50%, transparent 60%);
+    background-size: 200% 200%;
+    animation: liquid-pan 8s infinite linear;
+  }
+
+  @keyframes liquid-pan {
+    0% {
+      transform: rotate(0deg) translate(-5%, -5%);
+    }
+
+    100% {
+      transform: rotate(360deg) translate(5%, 5%);
+    }
+  }
+
+  /* NETFLIX ROW MASK */
+  .hero-mask {
+    background: linear-gradient(to top, #000000 0%, rgba(0, 0, 0, 0.8) 20%, transparent 100%);
+  }
+
+  /* LIVE PULSE */
+  .live-pulse {
+    @apply bg-brand-emerald w-2 h-2 rounded-full;
+    box-shadow: 0 0 10px #00C853;
+    animation: emerald-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes emerald-glow {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      filter: brightness(1.2);
+    }
+
+    50% {
+      opacity: 0.5;
+      transform: scale(1.1);
+      filter: brightness(0.8);
+    }
+  }
+
+  .live-badge-premium {
+    @apply px-2 py-0.5 bg-brand-emerald text-black text-[9px] font-black uppercase tracking-widest rounded-sm;
+    box-shadow: 0 0 15px rgba(0, 200, 83, 0.5);
+  }
+
+  @keyframes shine {
+    from {
+      left: -100%;
+    }
+
+    to {
+      left: 100%;
+    }
+  }
+
+  .animate-shine {
+    animation: shine 1.5s ease-in-out infinite;
+  }
+
+  /* UTILS */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .text-cinematic {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white/90 to-white/40;
+  }
+}

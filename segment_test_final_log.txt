@@ -1,0 +1,103 @@
+curl.exe : * Host 
+localhost:3000 was 
+resolved.
+At line:1 char:1
++ curl.exe -v "http://
+localhost:3000$segment
+Line" -o test.ts 
+--max-time ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (* Host loc   
+ alhost:3000 was r    
+esolved.:String)     
+[], RemoteExcepti    
+on
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % 
+Received % Xferd  
+Average Speed   Time  
+  Time     Time  
+Current
+                      
+           Dload  
+Upload   Total   
+Spent    Left  Speed
+
+  0     0    0     0  
+  0     0      0      
+0 --:--:-- --:--:-- 
+--:--:--     0*   
+Trying [::1]:3000...
+* Connected to 
+localhost (::1) port 
+3000
+* using HTTP/1.x
+> GET /api/proxy?url=h
+ttp%3A%2F%2Fopplex.rw%
+3A8080%2Fhls%2F253584a
+b68849fc810ccb50c5eb60
+bca%2F217968_5565.ts&r
+eferer=http%3A%2F%2Fop
+plex.rw%3A8080%2Flive%
+2F4566900%2F3374019%2F
+217968.m3u8 HTTP/1.1
+
+> Host: localhost:3000
+
+> User-Agent: 
+curl/8.13.0
+
+> Accept: */*
+
+> 
+
+* Request completely 
+sent off
+< HTTP/1.1 403 
+Forbidden
+
+< vary: rsc, next-rout
+er-state-tree, 
+next-router-prefetch, 
+next-router-segment-pr
+efetch
+
+< access-control-allow
+-origin: *
+
+< content-type: text/p
+lain;charset=UTF-8
+
+< Date: Sun, 28 Dec 
+2025 14:22:30 GMT
+
+< Connection: 
+keep-alive
+
+< Keep-Alive: 
+timeout=5
+
+< Transfer-Encoding: 
+chunked
+
+< 
+
+{ [33 bytes data]
+
+100    22    0    22  
+  0     0     42      
+0 --:--:-- --:--:-- 
+--:--:--    42
+* Connection #0 to 
+host localhost left 
+intact

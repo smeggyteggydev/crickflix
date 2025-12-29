@@ -1,0 +1,131 @@
+curl.exe : * Host 
+localhost:3000 was 
+resolved.
+At line:1 char:1
++ curl.exe -v "http://
+localhost:3000/api/pro
+xy?url=http%3A%2F%2Fop
+plex. ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (* Host loc   
+ alhost:3000 was r    
+esolved.:String)     
+[], RemoteExcepti    
+on
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % 
+Received % Xferd  
+Average Speed   Time  
+  Time     Time  
+Current
+                      
+           Dload  
+Upload   Total   
+Spent    Left  Speed
+
+  0     0    0     0  
+  0     0      0      
+0 --:--:-- --:--:-- 
+--:--:--     0*   
+Trying [::1]:3000...
+* Connected to 
+localhost (::1) port 
+3000
+* using HTTP/1.x
+
+  0     0    0     0  
+  0     0      0      
+0 --:--:-- --:--:-- 
+--:--:--     0> GET /a
+pi/proxy?url=http%3A%2
+F%2Fopplex.rw%3A8080%2
+Flive%2F4566900%2F3374
+019%2F217968.m3u8 
+HTTP/1.1
+
+> Host: localhost:3000
+
+> User-Agent: 
+curl/8.13.0
+
+> Accept: */*
+
+> 
+
+* Request completely 
+sent off
+
+  0     0    0     0  
+  0     0      0      
+0 --:--:--  0:00:01 
+--:--:--     0< 
+HTTP/1.1 200 OK
+
+< vary: rsc, next-rout
+er-state-tree, 
+next-router-prefetch, 
+next-router-segment-pr
+efetch
+
+< access-control-allow
+-headers: *
+
+< access-control-allow
+-methods: GET, OPTIONS
+
+< access-control-allow
+-origin: *
+
+< cache-control: 
+no-cache, no-store, 
+must-revalidate
+
+< content-length: 530
+
+< content-type: applic
+ation/vnd.apple.mpegur
+l
+
+< expires: 0
+
+< Date: Sun, 28 Dec 
+2025 14:20:53 GMT
+
+< Connection: 
+keep-alive
+
+< Keep-Alive: 
+timeout=5
+
+< 
+
+{ [530 bytes data]
+
+100   530  100   530  
+  0     0    428      
+0  0:00:01  0:00:01 
+--:--:--   428
+* Connection #0 to 
+host localhost left 
+intact
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:5555
+#EXT-X-ALLOW-CACHE:YES
+#EXT-X-TARGETDURATION:10
+#EXTINF:9.760000,
+/api/proxy?url=http%3A%2F%2Fopplex.rw%3A8080%2Fhls%2Fdcc7dbc880f61ffb383b5fa30327c6de%2F217968_5555.ts&referer=http%3A%2F%2Fopplex.rw%3A8080%2Flive%2F4566900%2F3374019%2F217968.m3u8
+#EXTINF:7.160000,
+/api/proxy?url=http%3A%2F%2Fopplex.rw%3A8080%2Fhls%2Fd05dd0aac39bb93f79d7926c840d4f90%2F217968_5556.ts&referer=http%3A%2F%2Fopplex.rw%3A8080%2Flive%2F4566900%2F3374019%2F217968.m3u8
+#EXTINF:10.000000,
+/api/proxy?
