@@ -9,9 +9,10 @@ import VideoPlayer from '@/components/VideoPlayer';
 import Marquee from '@/components/Marquee';
 import { ParsedM3UChannel } from '@/lib/types';
 
-// CONFIGURATION: Set this to your Cloudflare Worker proxy URL for WEB/HTTPS hosting.
-// Leave as empty string for LOCAL or ANDROID builds.
-const PROXY_URL = "";
+// CONFIGURATION: Internal Next.js API proxy for Vercel hosting.
+const PROXY_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+  ? "/api/proxy?url="
+  : "";
 
 export default function Home() {
   const [channels, setChannels] = useState<ParsedM3UChannel[]>([]);
