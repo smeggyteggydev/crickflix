@@ -40,11 +40,12 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
             const hls = new Hls({
                 enableWorker: true,
                 lowLatencyMode: true,
-                backBufferLength: 30,
-                maxBufferLength: 30,
+                backBufferLength: 90, // Keep more in buffer
+                maxBufferLength: 40,
+                maxMaxBufferLength: 60,
+                maxBufferSize: 60 * 1000 * 1000, // 60MB
                 capLevelToPlayerSize: true,
                 xhrSetup: (xhr, url) => {
-                    // Force headers if needed by certain providers
                     xhr.withCredentials = false;
                 }
             });
@@ -60,8 +61,20 @@ export default function VideoPlayer({ src, title, onClose, autoPlay = true }: Vi
 
             hls.on(Hls.Events.ERROR, (_, data) => {
                 if (data.fatal) {
-                    setError('Stream unavailable. The channel might be offline.');
-                    hls.destroy();
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.log('Network error, trying to recover...');
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.log('Media error, trying to recover...');
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            setError('Stream unavailable. The channel might be offline.');
+                            hls.destroy();
+                            break;
+                    }
                 }
             });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
